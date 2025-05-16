@@ -1,4 +1,4 @@
-package interfaces
+package network
 
 type GetParams struct {
 	URL             string
