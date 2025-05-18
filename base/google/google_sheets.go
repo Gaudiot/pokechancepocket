@@ -65,3 +65,33 @@ func (gs *GoogleSheets) GetSheetNames(spreadsheetId string) ([]string, error) {
 
 	return sheetNames, nil
 }
+
+func (gs *GoogleSheets) GetCellValue(spreadsheetId string, sheetName string, row int, column string) (string, error) {
+	v, err := gs.GetRangeValues(spreadsheetId, sheetName, row, column, row, column)
+	if err != nil {
+		return "", fmt.Errorf("não foi possível obter os valores da faixa: %v", err)
+	}
+
+	return v[0][0], nil
+}
+
+func (gs *GoogleSheets) GetRangeValues(spreadsheetId string, sheetName string, startRow int, startColumn string, endRow int, endColumn string) ([][]string, error) {
+	cellRange := fmt.Sprintf("%s!%s%d:%s%d", sheetName, startColumn, startRow, endColumn, endRow)
+	result, err := gs.sheetsService.Spreadsheets.Values.Get(spreadsheetId, cellRange).Do()
+	if err != nil {
+		return nil, fmt.Errorf("não foi possível obter os valores da faixa: %v", err)
+	}
+
+	if len(result.Values) == 0 {
+		return nil, nil
+	}
+
+	values := make([][]string, len(result.Values))
+	for i, row := range result.Values {
+		values[i] = make([]string, len(row))
+		for j, value := range row {
+			values[i][j] = fmt.Sprint(value)
+		}
+	}
+	return values, nil
+}
