@@ -86,7 +86,7 @@ func GetPullChancefunc(w http.ResponseWriter, r *http.Request) {
 		pullchance := newPullChance(values, packType, owned)
 		pullChances[packType] = pullchance * 100
 	}
-	json.NewEncoder(w).Encode(map[string]interface{}{"pullchances": pullChances})
+	json.NewEncoder(w).Encode(map[string]map[string]float64{"pullchances": pullChances})
 }
 
 func getPackTypes(values [][]string) []string {
@@ -121,13 +121,25 @@ func sumColumn(values [][]string, column rune, rarity string, packType string, o
 }
 
 func newPullChance(values [][]string, packType string, owned []int) float64 {
-	newFirstCard := 0.95*sumColumn(values, 'H', "Default", packType, owned) + 0.05*sumColumn(values, 'H', "Rare", packType, owned)
-	newSecondCard := 0.95*sumColumn(values, 'I', "Default", packType, owned) + 0.05*sumColumn(values, 'I', "Rare", packType, owned)
-	newThirdCard := 0.95*sumColumn(values, 'J', "Default", packType, owned) + 0.05*sumColumn(values, 'J', "Rare", packType, owned)
-	newFourthCard := 0.95*sumColumn(values, 'K', "Default", packType, owned) + 0.05*sumColumn(values, 'K', "Rare", packType, owned)
-	newFifthCard := 0.95*sumColumn(values, 'L', "Default", packType, owned) + 0.05*sumColumn(values, 'L', "Rare", packType, owned)
+	firstCardDefault := sumColumn(values, 'H', "Default", packType, owned)
+	firstCardRare := sumColumn(values, 'H', "Rare", packType, owned)
 
-	return (1 - (1-newFirstCard)*(1-newSecondCard)*(1-newThirdCard)*(1-newFourthCard)*(1-newFifthCard))
+	secondCardDefault := sumColumn(values, 'I', "Default", packType, owned)
+	secondCardRare := sumColumn(values, 'I', "Rare", packType, owned)
+
+	thirdCardDefault := sumColumn(values, 'J', "Default", packType, owned)
+	thirdCardRare := sumColumn(values, 'J', "Rare", packType, owned)
+
+	fourthCardDefault := sumColumn(values, 'K', "Default", packType, owned)
+	fourthCardRare := sumColumn(values, 'K', "Rare", packType, owned)
+
+	fifthCardDefault := sumColumn(values, 'L', "Default", packType, owned)
+	fifthCardRare := sumColumn(values, 'L', "Rare", packType, owned)
+
+	newCardDefault := (1 - (1-firstCardDefault)*(1-secondCardDefault)*(1-thirdCardDefault)*(1-fourthCardDefault)*(1-fifthCardDefault))
+	newCardRare := (1 - (1-firstCardRare)*(1-secondCardRare)*(1-thirdCardRare)*(1-fourthCardRare)*(1-fifthCardRare))
+
+	return 0.9995*newCardDefault + 0.0005*newCardRare
 }
 
 func GetCollectionCardsfunc(w http.ResponseWriter, r *http.Request) {
