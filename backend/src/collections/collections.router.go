@@ -17,7 +17,33 @@ func CollectionsRouteHandler() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/collection/pullchance/", GetPullChancefunc)
 	mux.HandleFunc("/collection/", GetCollectionCardsfunc)
+	mux.HandleFunc("/collections/", GetCollectionsfunc)
 	return mux
+}
+
+func GetCollectionsfunc(w http.ResponseWriter, r *http.Request) {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Erro ao carregar variáveis de ambiente: %v", err)
+	}
+
+	spreadsheetId := os.Getenv("POKECHANCE_GOOGLE_SHEET_ID")
+	googleSheets := google.NewGoogleSheets()
+	sheetNames, err := googleSheets.GetSheetNames(spreadsheetId)
+	if err != nil {
+		log.Fatalf("Erro ao obter nomes das planilhas: %v", err)
+	}
+
+	response := make(map[string]string)
+	for _, sheetName := range sheetNames {
+		collectionName, err := googleSheets.GetCellValue(spreadsheetId, sheetName, 24, "U")
+		if err != nil {
+			log.Fatalf("Erro ao obter o nome da coleção: %v", err)
+		}
+		response[sheetName] = collectionName
+	}
+
+	json.NewEncoder(w).Encode(map[string]interface{}{"collections": response})
 }
 
 func GetPullChancefunc(w http.ResponseWriter, r *http.Request) {
