@@ -5,8 +5,25 @@ import (
 	collections_router "pokechancepocket/src/collections"
 )
 
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func RouteHandler() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.Handle("/collection/", collections_router.CollectionsRouteHandler())
+	collectionsHandler := collections_router.CollectionsRouteHandler()
+	mux.Handle("/collection/", corsMiddleware(collectionsHandler))
+	mux.Handle("/collections/", corsMiddleware(collectionsHandler))
 	return mux
 }
