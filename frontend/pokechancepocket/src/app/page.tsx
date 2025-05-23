@@ -1,19 +1,27 @@
 'use client'
 
+import IAnalytics from '@/core/analytics/ianalytics'
+import FirebaseAnalytics from '@/core/analytics/implementations/firebase_analytics'
 import AxiosNetwork from '@/core/network/implementations/axios_network'
+import INetwork from '@/core/network/inetwork'
 import { useEffect, useState } from 'react'
 
-interface Collection {
-  cards: string[]
+function onCalculateOddsClick(analytics: IAnalytics) {
+  analytics.trackEvent({
+    name: 'calculate_odds_click',
+    properties: {
+      pressed: "true"
+    }
+  })
 }
 
 export default function Home() {
-  const axios = new AxiosNetwork()
+  const axios: INetwork = new AxiosNetwork()
+  const analytics: IAnalytics = new FirebaseAnalytics()
   const [collections, setCollections] = useState<string[]>([])
 
   useEffect(() => {
     const getCollections = async () => {
-      
       try {
         const response = await axios.get<any>('http://localhost:8080/collections/')
         const collections = Object.keys(response.collections)
@@ -30,7 +38,6 @@ export default function Home() {
   const onCollectionPress = (collection: string) => {
     console.log('Coleção selecionada:', collection)
   }
-
   return (
     <div>
       <h1>Poke Chance Pocket</h1>
@@ -54,6 +61,14 @@ export default function Home() {
         <div className="flex-1 bg-gray-200 p-5">
           Componente 3
         </div>
+      </div>
+      <div className="mt-4 text-center">
+        <button 
+          onClick={() => onCalculateOddsClick(analytics)}
+          className="bg-blue-500 hover:bg-blue-700 active:bg-blue-900 text-white font-bold py-2 px-4 rounded cursor-pointer"
+        >
+          Calculate Odds
+        </button>
       </div>
     </div>
   )
