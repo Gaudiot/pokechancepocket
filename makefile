@@ -11,4 +11,4 @@ prune-branches:
 		echo "Este comando só pode ser executado na branch 'development'"; \
 		exit 1; \
 	fi
-	git fetch -p && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D
+	git fetch -p && for branch in $$(git branch -vv | grep ': gone]' | awk '{print $$1}'); do git branch -D "$$branch"; done
