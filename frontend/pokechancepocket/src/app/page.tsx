@@ -59,14 +59,21 @@ function CardList({cards}: {cards: Card[]}) {
   }, [cards])
 
   return (
-    <div ref={listRef} className="flex-1 bg-gray-200 p-5 h-[500px] overflow-y-auto">
-      <ul className="space-y-2">
-        {cards.map((card) => (
-          <li key={card.id}>
-            {`[${card.id}] - ${card.name}`}
-          </li>
-        ))}
-      </ul>
+    <div className="flex-1 bg-gray-200 p-5 h-[500px] relative">
+      <div className="mb-4 font-bold flex bg-gray-300 sticky top-0 z-10 pb-2">
+        <div className="w-20">Possui</div>
+        <div>ID e Nome da Carta</div>
+      </div>
+      <div ref={listRef} className="overflow-y-auto h-[calc(100%-2rem)]">
+        <ul className="space-y-2">
+          {cards.map((card) => (
+            <li key={card.id} className="flex items-center">
+              <input type="checkbox" className="mr-4 w-12" />
+              <span>{`[${card.id}] - ${card.name}`}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   )
 }
