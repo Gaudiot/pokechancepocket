@@ -86,8 +86,6 @@ function CardList({cards, selectedCardIds, onSelectionChange}: CardListProps) {
   )
 }
 
-import bg from '@/assets/bg.png'
-
 function PullChanceList({pullChance}: {pullChance: PullChance[]}) {
   return (
     <div className="flex-1 bg-gray-200 p-5 h-[500px] overflow-y-auto">
@@ -107,7 +105,7 @@ type PullChance = {
 
 export default function Home() {
   const axios: INetwork = new AxiosNetwork()
-  let analytics: IAnalytics
+  const analyticsRef = useRef<IAnalytics | null>(null)
   const [collections, setCollections] = useState<{name: string, id: string}[]>([])
   const [selectedCollection, setSelectedCollection] = useState<string>()
   const [cards, setCards] = useState<Card[]>([])
@@ -115,7 +113,6 @@ export default function Home() {
   const [pullChance, setPullChance] = useState<PullChance[]>([])
 
   useEffect(() => {
-    analytics = new FirebaseAnalytics()
     const getCollections = async () => {
       try {
         const response = await axios.get<any>('http://localhost:8080/collections/')
@@ -151,17 +148,25 @@ export default function Home() {
     }
   }, [selectedCollection])
 
+  useEffect(() => {
+    analyticsRef.current = new FirebaseAnalytics()
+  }, [])
+
   const onCollectionPress = (collectionId: string) => {
     setSelectedCollection(collectionId)
   }
 
   async function onCalculateOddsClick() {
-    // analytics.trackEvent({
-    //   name: 'calculate_odds_click',
-    //   properties: {
-    //     pressed: "true"
-    //   }
-    // })
+    try {
+      analyticsRef.current?.trackEvent({
+        name: 'calculate_odds_click',
+        properties: {
+          pressed: "true"
+        }
+      })
+    } catch (error) {
+      console.error('Erro ao trackEvent:', error)
+    }
 
     try {
       const response = await axios.get<any>(`http://localhost:8080/collection/pullchance/${selectedCollection}?owned=${selectedCardIds.join(',')}`)
@@ -171,7 +176,6 @@ export default function Home() {
         pullChance: pullChanceValue
       } as PullChance))
 
-      console.log(pullChance)
       setPullChance(pullChance)
     } catch (error) {
       console.error('Erro ao calcular odds:', error)
