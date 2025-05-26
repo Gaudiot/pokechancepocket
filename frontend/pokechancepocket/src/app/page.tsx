@@ -6,6 +6,8 @@ import AxiosNetwork from '@/core/network/implementations/axios_network'
 import INetwork from '@/core/network/inetwork'
 import { useEffect, useRef, useState } from 'react'
 
+import pokechancetitle from '@/assets/pokechance_title.png'
+
 interface CollectionListProps {
   collections: {
     name: string
@@ -22,17 +24,17 @@ type Card = {
 
 function CollectionList({collections, onCollectionPress, selectedCollectionId}: CollectionListProps) {
   return(
-    <div className="flex-1 bg-gray-200 p-5 h-[500px] overflow-y-auto">
-      <ul className="space-y-2">
+    <div className="flex-1 p-4 overflow-x-auto">
+      <ul className="flex space-x-4">
         {collections.map((collection) => (
           <li 
             key={collection.id}
             onClick={() => onCollectionPress(collection.id)}
-            className={`cursor-pointer hover:bg-gray-300 p-2 rounded ${
-              selectedCollectionId === collection.id ? 'border-2 border-blue-500 font-bold' : ''
+            className={`cursor-pointer px-2 py-2 rounded whitespace-nowrap ${
+              selectedCollectionId === collection.id ? 'bg-yellow-400 border border-black' : 'bg-white hover:bg-gray-300'
             }`}
           >
-            {`[${collection.id}] - ${collection.name}`}
+            {`[${collection.id}] ${collection.name}`}
           </li>
         ))}
       </ul>
@@ -187,9 +189,9 @@ export default function Home() {
       backgroundImage: `url(https://i.imgur.com/eVcYPSa.png)`,
       minHeight: '100vh'
     }}>
-      <h1>Poke Chance Pocket</h1>
+      <img src={pokechancetitle.src} alt="PokeChance Pocket" className="w-auto h-auto" style={{width: '500px'}}/>
+      <CollectionList collections={collections} onCollectionPress={onCollectionPress} selectedCollectionId={selectedCollection} />
       <div className="flex justify-between w-full gap-5">
-        <CollectionList collections={collections} onCollectionPress={onCollectionPress} selectedCollectionId={selectedCollection} />
         <CardList
           cards={cards}
           selectedCardIds={selectedCardIds}
