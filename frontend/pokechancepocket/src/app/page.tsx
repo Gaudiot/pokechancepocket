@@ -5,41 +5,13 @@ import FirebaseAnalytics from '@/core/analytics/implementations/firebase_analyti
 import AxiosNetwork from '@/core/network/implementations/axios_network'
 import INetwork from '@/core/network/inetwork'
 import { useEffect, useRef, useState } from 'react'
+import CollectionList from './components/collection_list'
 
 import pokechancetitle from '@/assets/pokechance_title.png'
-
-interface CollectionListProps {
-  collections: {
-    name: string
-    id: string
-  }[]
-  onCollectionPress: (collection: string) => void
-  selectedCollectionId?: string
-}
 
 type Card = {
   name: string
   id: string
-}
-
-function CollectionList({collections, onCollectionPress, selectedCollectionId}: CollectionListProps) {
-  return(
-    <div className="flex-1 p-4 overflow-x-auto">
-      <ul className="flex space-x-4">
-        {collections.map((collection) => (
-          <li 
-            key={collection.id}
-            onClick={() => onCollectionPress(collection.id)}
-            className={`cursor-pointer px-2 py-2 rounded whitespace-nowrap ${
-              selectedCollectionId === collection.id ? 'bg-yellow-400 border border-black' : 'bg-white hover:bg-gray-300'
-            }`}
-          >
-            {`[${collection.id}] ${collection.name}`}
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
 }
 
 interface CardListProps {
@@ -154,10 +126,6 @@ export default function Home() {
     analyticsRef.current = new FirebaseAnalytics()
   }, [])
 
-  const onCollectionPress = (collectionId: string) => {
-    setSelectedCollection(collectionId)
-  }
-
   async function onCalculateOddsClick() {
     try {
       analyticsRef.current?.trackEvent({
@@ -190,7 +158,7 @@ export default function Home() {
       minHeight: '100vh'
     }}>
       <img src={pokechancetitle.src} alt="PokeChance Pocket" className="w-auto h-auto" style={{width: '500px'}}/>
-      <CollectionList collections={collections} onCollectionPress={onCollectionPress} selectedCollectionId={selectedCollection} />
+      <CollectionList isLoading={collections.length === 0} hasError={false} errorMessage={undefined} selectedCollectionId={selectedCollection} onCollectionPress={setSelectedCollection} collections={collections} />
       <div className="flex justify-between w-full gap-5">
         <CardList
           cards={cards}
