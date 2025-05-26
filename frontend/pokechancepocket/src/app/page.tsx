@@ -6,15 +6,6 @@ import AxiosNetwork from '@/core/network/implementations/axios_network'
 import INetwork from '@/core/network/inetwork'
 import { useEffect, useRef, useState } from 'react'
 
-function onCalculateOddsClick(analytics: IAnalytics) {
-  analytics.trackEvent({
-    name: 'calculate_odds_click',
-    properties: {
-      pressed: "true"
-    }
-  })
-}
-
 interface CollectionListProps {
   collections: {
     name: string
@@ -49,7 +40,13 @@ function CollectionList({collections, onCollectionPress, selectedCollectionId}: 
   )
 }
 
-function CardList({cards}: {cards: Card[]}) {
+interface CardListProps {
+  cards: Card[];
+  selectedCardIds: string[];
+  onSelectionChange: (selectedCardIds: string[]) => void;
+}
+
+function CardList({cards, selectedCardIds, onSelectionChange}: CardListProps) {
   const listRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -62,13 +59,24 @@ function CardList({cards}: {cards: Card[]}) {
     <div className="flex-1 bg-gray-200 p-5 h-[500px] relative">
       <div className="mb-4 font-bold flex bg-gray-300 sticky top-0 z-10 pb-2">
         <div className="w-20">Possui</div>
-        <div>ID e Nome da Carta</div>
+        <div>{"[ID] - Nome da Carta"}</div>
       </div>
       <div ref={listRef} className="overflow-y-auto h-[calc(100%-2rem)]">
         <ul className="space-y-2">
           {cards.map((card) => (
             <li key={card.id} className="flex items-center">
-              <input type="checkbox" className="mr-4 w-12" />
+              <input
+                type="checkbox"
+                className="mr-4 w-12"
+                checked={selectedCardIds.includes(card.id)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    onSelectionChange([...selectedCardIds, card.id]);
+                  } else {
+                    onSelectionChange(selectedCardIds.filter(id => id !== card.id));
+                  }
+                }}
+              />
               <span>{`[${card.id}] - ${card.name}`}</span>
             </li>
           ))}
@@ -78,15 +86,33 @@ function CardList({cards}: {cards: Card[]}) {
   )
 }
 
+function PullChanceList({pullChance}: {pullChance: PullChance[]}) {
+  return (
+    <div className="flex-1 bg-gray-200 p-5 h-[500px] overflow-y-auto">
+      <ul className="space-y-2">
+        {pullChance.map((pack) => (
+          <li key={pack.packName}>{`${pack.packName} - ${pack.pullChance.toFixed(5)}%`}</li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+type PullChance = {
+  packName: string,
+  pullChance: number
+}
+
 export default function Home() {
   const axios: INetwork = new AxiosNetwork()
-  let analytics: IAnalytics
+  const analyticsRef = useRef<IAnalytics | null>(null)
   const [collections, setCollections] = useState<{name: string, id: string}[]>([])
   const [selectedCollection, setSelectedCollection] = useState<string>()
   const [cards, setCards] = useState<Card[]>([])
+  const [selectedCardIds, setSelectedCardIds] = useState<string[]>([])
+  const [pullChance, setPullChance] = useState<PullChance[]>([])
 
   useEffect(() => {
-    analytics = new FirebaseAnalytics()
     const getCollections = async () => {
       try {
         const response = await axios.get<any>('http://localhost:8080/collections/')
@@ -102,6 +128,7 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
+    setSelectedCardIds([])
     const getCollectionCards = async () => {
       try {
         const response = await axios.get<any>(`http://localhost:8080/collection/${selectedCollection}`)
@@ -121,23 +148,58 @@ export default function Home() {
     }
   }, [selectedCollection])
 
+  useEffect(() => {
+    analyticsRef.current = new FirebaseAnalytics()
+  }, [])
+
   const onCollectionPress = (collectionId: string) => {
     setSelectedCollection(collectionId)
   }
 
+  async function onCalculateOddsClick() {
+    try {
+      analyticsRef.current?.trackEvent({
+        name: 'calculate_odds_click',
+        properties: {
+          pressed: "true"
+        }
+      })
+    } catch (error) {
+      console.error('Erro ao trackEvent:', error)
+    }
+
+    try {
+      const response = await axios.get<any>(`http://localhost:8080/collection/pullchance/${selectedCollection}?owned=${selectedCardIds.join(',')}`)
+
+      const pullChance: PullChance[] = Object.entries(response.pullchances).map(([packName, pullChanceValue]) => ({
+        packName: packName,
+        pullChance: pullChanceValue
+      } as PullChance))
+
+      setPullChance(pullChance)
+    } catch (error) {
+      console.error('Erro ao calcular odds:', error)
+    }
+  }
+
   return (
-    <div>
+    <div style={{
+      backgroundImage: `url(https://i.imgur.com/eVcYPSa.png)`,
+      minHeight: '100vh'
+    }}>
       <h1>Poke Chance Pocket</h1>
       <div className="flex justify-between w-full gap-5">
         <CollectionList collections={collections} onCollectionPress={onCollectionPress} selectedCollectionId={selectedCollection} />
-        <CardList cards={cards}/>
-        <div className="flex-1 bg-gray-200 p-5">
-          Componente 3
-        </div>
+        <CardList
+          cards={cards}
+          selectedCardIds={selectedCardIds}
+          onSelectionChange={setSelectedCardIds}
+        />
+        <PullChanceList pullChance={pullChance} />
       </div>
       <div className="mt-4 text-center">
         <button 
-          onClick={() => onCalculateOddsClick(analytics)}
+          onClick={() => onCalculateOddsClick()}
           className="bg-blue-500 hover:bg-blue-700 active:bg-blue-900 text-white font-bold py-2 px-4 rounded cursor-pointer"
         >
           Calculate Odds
