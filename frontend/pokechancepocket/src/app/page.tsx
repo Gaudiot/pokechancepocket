@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react'
 import CollectionList from './components/collection_list'
 
 import pokechancetitle from '@/assets/pokechance_title.png'
-import CardsList from './components/cards_list'
+import CollectionCardsList from './components/collection_cards_list'
 import { useGetCollectionCards } from './hooks/get_collection_cards_hook'
 import { useGetCollections } from './hooks/get_collections_hook'
 import { useGetCollectionPullChance } from './hooks/get_collection_pullchance_hook'
@@ -39,7 +39,7 @@ export default function Home() {
       <img src={pokechancetitle.src} alt="PokeChance Pocket" className="w-auto h-auto" style={{width: '500px'}}/>
       <CollectionList isLoading={isCollectionsLoading} hasError={hasCollectionsError} errorMessage={collectionsErrorMessage} selectedCollectionId={selectedCollection} onCollectionPress={setSelectedCollection} collections={collections} />
       <div className="flex justify-between w-full gap-5">
-        <CardsList isLoading={isCollectionsLoading || isCardsLoading} hasError={false} hasCollectionSelected={selectedCollection !== undefined} errorMessage={undefined} cards={cards} selectedCardIds={selectedCardIds} onSelectionChange={setSelectedCardIds} />
+        <CollectionCardsList isLoading={isCollectionsLoading || isCardsLoading} hasError={false} hasCollectionSelected={selectedCollection !== undefined} errorMessage={undefined} cards={cards} selectedCardIds={selectedCardIds} onSelectionChange={setSelectedCardIds} />
         <CollectionPullchancesList pullChance={pullChance} isLoading={isCollectionsLoading || isPullChanceLoading} hasError={hasCollectionsError || hasCardsError || hasPullChanceError} errorMessage={collectionsErrorMessage || cardsErrorMessage || pullChanceErrorMessage} hasCollectionSelected={selectedCollection !== undefined} />
       </div>
       <div className="mt-4 text-center">
@@ -47,7 +47,7 @@ export default function Home() {
           onClick={fetchPullChance}
           className="bg-red-600 hover:bg-red-500 border-3 border-black active:bg-red-800 text-white font-bold py-2 px-4 rounded cursor-pointer"
         >
-          Calculate Odds
+          Calcular Probabilidades
         </button>
       </div>
     </div>
