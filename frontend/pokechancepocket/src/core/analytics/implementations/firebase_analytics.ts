@@ -1,12 +1,12 @@
 import { Analytics, getAnalytics, logEvent } from "firebase/analytics";
-import { getFirebaseApp } from "@/base/firebase/firebase";
+import { firebaseApp } from "@/base/firebase/firebase";
 import IAnalytics, { AnalyticsEvent } from "../ianalytics";
 
 export default class FirebaseAnalytics implements IAnalytics {
     private analytics: Analytics;
 
     constructor() {
-        this.analytics = getAnalytics(getFirebaseApp());
+        this.analytics = getAnalytics(firebaseApp);
     }
 
     trackEvent({name, properties}: AnalyticsEvent): void {

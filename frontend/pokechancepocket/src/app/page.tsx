@@ -2,11 +2,9 @@
 
 import IAnalytics from '@/core/analytics/ianalytics'
 import FirebaseAnalytics from '@/core/analytics/implementations/firebase_analytics'
-import AxiosNetwork from '@/core/network/implementations/axios_network'
-import INetwork from '@/core/network/inetwork'
 import { useEffect, useRef, useState } from 'react'
 import CollectionList from './components/collection_list'
-
+import UserMenu from './components/UserMenu'
 import pokechancetitle from '@/assets/pokechance_title.png'
 import CollectionCardsList from './components/collection_cards_list'
 import { useGetCollectionCards } from './hooks/get_collection_cards_hook'
@@ -28,7 +26,7 @@ export default function Home() {
   }, [selectedCollection])
 
   useEffect(() => {
-    analyticsRef.current = new FirebaseAnalytics()
+    // analyticsRef.current = new FirebaseAnalytics()
   }, [])
 
   return (
@@ -36,7 +34,10 @@ export default function Home() {
       backgroundImage: `url(https://i.imgur.com/eVcYPSa.png)`,
       minHeight: '100vh'
     }}>
-      <img src={pokechancetitle.src} alt="PokeChance Pocket" className="w-auto h-auto" style={{width: '500px'}}/>
+      <div className="flex justify-between items-center w-full">
+        <img src={pokechancetitle.src} alt="PokeChance Pocket" className="w-auto h-auto" style={{width: '500px'}}/>
+        <UserMenu />
+      </div>
       <CollectionList isLoading={isCollectionsLoading} hasError={hasCollectionsError} errorMessage={collectionsErrorMessage} selectedCollectionId={selectedCollection} onCollectionPress={setSelectedCollection} collections={collections} />
       <div className="flex justify-between w-full gap-5">
         <CollectionCardsList isLoading={isCollectionsLoading || isCardsLoading} hasError={false} hasCollectionSelected={selectedCollection !== undefined} errorMessage={undefined} cards={cards} selectedCardIds={selectedCardIds} onSelectionChange={setSelectedCardIds} />
