@@ -9,8 +9,4 @@ const firebaseConfig = {
     appId: "1:1057831672329:web:4f89df444d25e6837eb6d8",
     measurementId: "G-TV4QTM4YSS"
   };
-const firebaseApp = initializeApp(firebaseConfig);
-
-export function getFirebaseApp(): FirebaseApp {
-  return firebaseApp;
-}
+export const firebaseApp = initializeApp(firebaseConfig);

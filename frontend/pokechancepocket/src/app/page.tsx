@@ -2,12 +2,9 @@
 
 import IAnalytics from '@/core/analytics/ianalytics'
 import FirebaseAnalytics from '@/core/analytics/implementations/firebase_analytics'
-import AxiosNetwork from '@/core/network/implementations/axios_network'
-import INetwork from '@/core/network/inetwork'
 import { useEffect, useRef, useState } from 'react'
 import CollectionList from './components/collection_list'
-
-import pokechancetitle from '@/assets/pokechance_title.png'
+import Header from '../components/header'
 import CollectionCardsList from './components/collection_cards_list'
 import { useGetCollectionCards } from './hooks/get_collection_cards_hook'
 import { useGetCollections } from './hooks/get_collections_hook'
@@ -31,12 +28,16 @@ export default function Home() {
     analyticsRef.current = new FirebaseAnalytics()
   }, [])
 
+  const onSupportClick = () => {
+    alert("If you need support or have any suggestions, please contact us at natirinha.blogspot@gmail.com")
+  }
+
   return (
     <div style={{
       backgroundImage: `url(https://i.imgur.com/eVcYPSa.png)`,
       minHeight: '100vh'
     }}>
-      <img src={pokechancetitle.src} alt="PokeChance Pocket" className="w-auto h-auto" style={{width: '500px'}}/>
+      <Header />
       <CollectionList isLoading={isCollectionsLoading} hasError={hasCollectionsError} errorMessage={collectionsErrorMessage} selectedCollectionId={selectedCollection} onCollectionPress={setSelectedCollection} collections={collections} />
       <div className="flex justify-between w-full gap-5">
         <CollectionCardsList isLoading={isCollectionsLoading || isCardsLoading} hasError={false} hasCollectionSelected={selectedCollection !== undefined} errorMessage={undefined} cards={cards} selectedCardIds={selectedCardIds} onSelectionChange={setSelectedCardIds} />
@@ -48,6 +49,11 @@ export default function Home() {
           className="bg-red-600 hover:bg-red-500 border-3 border-black active:bg-red-800 text-white font-bold py-2 px-4 rounded cursor-pointer"
         >
           Calcular Probabilidades
+        </button>
+      </div>
+      <div className="flex justify-end mr-4 mb-4">
+        <button className="bg-blue-500 hover:bg-blue-400 border-3 border-black active:bg-blue-800 text-white font-bold py-2 px-4 rounded cursor-pointer" onClick={onSupportClick}>
+          Support
         </button>
       </div>
     </div>
