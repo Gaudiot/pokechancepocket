@@ -25,8 +25,12 @@ export default function Home() {
   }, [selectedCollection])
 
   useEffect(() => {
-    // analyticsRef.current = new FirebaseAnalytics()
+    analyticsRef.current = new FirebaseAnalytics()
   }, [])
+
+  const onSupportClick = () => {
+    alert("If you need support or have any suggestions, please contact us at natirinha.blogspot@gmail.com")
+  }
 
   return (
     <div style={{
@@ -45,6 +49,11 @@ export default function Home() {
           className="bg-red-600 hover:bg-red-500 border-3 border-black active:bg-red-800 text-white font-bold py-2 px-4 rounded cursor-pointer"
         >
           Calcular Probabilidades
+        </button>
+      </div>
+      <div className="flex justify-end mr-4 mb-4">
+        <button className="bg-blue-500 hover:bg-blue-400 border-3 border-black active:bg-blue-800 text-white font-bold py-2 px-4 rounded cursor-pointer" onClick={onSupportClick}>
+          Support
         </button>
       </div>
     </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import pokechancetitle from '@/assets/pokechance_title.png'
-import UserMenu from '@/components/UserMenu'
+import UserMenu from '@/components/user_menu'
 import { usePathname } from 'next/navigation'
 
 interface HeaderProps {
