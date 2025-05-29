@@ -6,6 +6,7 @@ import SignupComponent from "./components/signup_component"
 import ForgotPasswordComponent from "./components/forgot_password_component"
 import IAuth from "@/core/auth/iauth"
 import FirebaseAuth from "@/core/auth/implementations/firebase_auth"
+import Header from "@/components/header"
 
 enum AuthPageType {
   Login,
@@ -84,10 +85,14 @@ export default function AuthPage() {
   return (
     <div style={{
         backgroundImage: `url(https://i.imgur.com/eVcYPSa.png)`,
-    } } className="min-h-screen flex items-center justify-center">
+        minHeight: '100vh'
+    }}>
+      <Header hideUserMenu/>
+      <div className="flex justify-center items-center w-full h-[calc(100vh-128px)]">
         {authType === AuthPageType.Login && <LoginComponent onChangeToSignUp={onChangeToSignUp} onLoginClick={onLoginClick} onChangeToForgotPassword={onChangeToForgotPassword} />}
         {authType === AuthPageType.SignUp && <SignupComponent onChangeToLogin={onChangeToLogin} onSignUpClick={onSignUpClick} />}
         {authType === AuthPageType.ForgotPassword && <ForgotPasswordComponent onForgotPasswordClick={onForgotPasswordClick} onChangeToLogin={onChangeToLogin} />}
+      </div>
     </div>
   )
 }
