@@ -14,6 +14,7 @@ enum FirebaseAuthError {
     USER_DISABLED = "auth/user-disabled",
     NETWORK_REQUEST_FAILED = "auth/network-request-failed",
     INTERNAL_ERROR = "auth/internal-error",
+    INVALID_CREDENTIALS = "auth/invalid-credential"
 }
 
 export default class FirebaseAuth implements IAuth {
@@ -58,6 +59,9 @@ export default class FirebaseAuth implements IAuth {
                 break;
             case FirebaseAuthError.INTERNAL_ERROR:
                 errorMessage = "Internal error"
+                break;
+            case FirebaseAuthError.INVALID_CREDENTIALS:
+                errorMessage = "Invalid credentials"
                 break;
             default:
                 errorMessage = firebaseError.message
