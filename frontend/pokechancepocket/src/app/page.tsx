@@ -15,14 +15,17 @@ export default function Home() {
   const analyticsRef = useRef<IAnalytics | null>(null)
   const [selectedCollection, setSelectedCollection] = useState<string>()
   const {collections, isLoading: isCollectionsLoading, hasError: hasCollectionsError, errorMessage: collectionsErrorMessage} = useGetCollections()
-  const {cards, isLoading: isCardsLoading, hasError: hasCardsError, errorMessage: cardsErrorMessage} = useGetCollectionCards(selectedCollection)
+  const {cards, ownedCardsIds, isLoading: isCardsLoading, hasError: hasCardsError, errorMessage: cardsErrorMessage} = useGetCollectionCards(selectedCollection)
   const [selectedCardIds, setSelectedCardIds] = useState<string[]>([])
   const {pullChance, isLoading: isPullChanceLoading, hasError: hasPullChanceError, errorMessage: pullChanceErrorMessage, fetchPullChance} = useGetCollectionPullChance(selectedCollection, selectedCardIds)
 
   // Resetar lista de cartas selecionadas ao trocar de coleção
   useEffect(() => {
     setSelectedCardIds([])
-  }, [selectedCollection])
+    if(ownedCardsIds && ownedCardsIds.length > 0) {
+      setSelectedCardIds(ownedCardsIds.map(id => id.toString()))
+    }
+  }, [selectedCollection, ownedCardsIds])
 
   useEffect(() => {
     analyticsRef.current = new FirebaseAnalytics()

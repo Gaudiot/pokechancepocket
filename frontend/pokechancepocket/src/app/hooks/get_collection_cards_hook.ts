@@ -9,6 +9,7 @@ export type Card = {
 
 interface UseGetCollectionCardsResult {
   cards: Card[]
+  ownedCardsIds: number[]
   isLoading: boolean
   hasError: boolean
   errorMessage?: string
@@ -16,6 +17,7 @@ interface UseGetCollectionCardsResult {
 
 export function useGetCollectionCards(collectionId?: string): UseGetCollectionCardsResult {
   const [cards, setCards] = useState<Card[]>([])
+  const [ownedCardsIds, setOwnedCardsIds] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [hasError, setHasError] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
@@ -37,11 +39,17 @@ export function useGetCollectionCards(collectionId?: string): UseGetCollectionCa
       setErrorMessage(undefined)
 
       try {
-        const response = await network.get<any>(`http://localhost:8080/collection/${collectionId}`)
+        const response = await network.get<any>({
+          url: `http://localhost:8080/collection/${collectionId}`,
+          header: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        })
         const fetchedCards: Card[] = response.cards.map((card: any) => ({
           name: card.CardName,
           id: card.CardId,
         }))
+        setOwnedCardsIds(response.owned)
         setCards(fetchedCards)
       } catch (error: any) {
         setHasError(true)
@@ -55,5 +63,5 @@ export function useGetCollectionCards(collectionId?: string): UseGetCollectionCa
     fetchCards()
   }, [collectionId])
 
-  return { cards, isLoading, hasError, errorMessage }
+  return { cards, ownedCardsIds, isLoading, hasError, errorMessage }
 }
