@@ -1,9 +1,9 @@
 import axios from 'axios';
-import INetwork from '../inetwork';
+import INetwork, {getParams} from '../inetwork';
 
 export default class AxiosNetwork implements INetwork {
-  async get<T>(url: string): Promise<T> {
-    const response = await axios.get<T>(url);
+  async get<T>({ url, header }: getParams): Promise<T> {
+    const response = await axios.get<T>(url, { headers: header });
     return response.data;
   }
 

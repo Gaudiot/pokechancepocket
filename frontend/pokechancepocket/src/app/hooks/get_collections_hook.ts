@@ -29,7 +29,9 @@ export function useGetCollections(): UseGetCollectionsResult {
       setErrorMessage(undefined)
 
       try {
-        const response = await network.get<any>('http://localhost:8080/collections/')
+        const response = await network.get<any>({
+          url: 'http://localhost:8080/collections/',
+        })
         const fetched: Collection[] = Object.keys(response.collections).map((key) => ({
           name: response.collections[key],
           id: key

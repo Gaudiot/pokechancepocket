@@ -36,9 +36,13 @@ export function useGetCollectionPullChance(
     setErrorMessage(undefined)
 
     try {
-      const response = await network.get<any>(
-        `http://localhost:8080/collection/pullchance/${collectionId}?owned=${ownedCardIds.join(',')}`
-      )
+      const response = await network.get<any>({
+        url: `http://localhost:8080/collection/pullchance/${collectionId}?owned=${ownedCardIds.join(',')}`,
+        header: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      })
+      
       const data: PullChance[] = Object.entries(response.pullchances).map(
         ([packName, pullChanceValue]) => ({
           packName,

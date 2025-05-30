@@ -2,10 +2,13 @@ package collections_router
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	database_card_firestore "pokechancepocket/base/database/card/implementations"
 	"pokechancepocket/base/google"
+	firebase_auth "pokechancepocket/core/auth/implementations"
 	"slices"
 	"strconv"
 	"strings"
@@ -99,6 +102,21 @@ func GetPullChancefunc(w http.ResponseWriter, r *http.Request) {
 		slices.Sort(owned)
 	}
 
+	// Get user ID from token
+	tokenData, err := firebase_auth.GetFirebaseAuth().ValidateAndGetJWTData(r)
+	if err != nil {
+		fmt.Println("Error getting token data", err)
+	}
+	if tokenData != nil {
+		userId := tokenData.UID
+
+		card_firestore := database_card_firestore.NewFirestoreCardDatabase()
+		err = card_firestore.SetUserCards(userId, collectionId, owned)
+		if err != nil {
+			fmt.Println("Error setting user cards", err)
+		}
+	}
+
 	spreadsheetId := os.Getenv("POKECHANCE_GOOGLE_SHEET_ID")
 	googleSheets := google.NewGoogleSheets()
 	values, err := googleSheets.GetAllValues(spreadsheetId, collectionId)
@@ -174,8 +192,26 @@ func GetCollectionCardsfunc(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "ID da coleção não informado", http.StatusBadRequest)
 		return
 	}
+
+	ownedCards := make([]int, 0)
+	// Get user ID from token
+	tokenData, err := firebase_auth.GetFirebaseAuth().ValidateAndGetJWTData(r)
+	if err != nil {
+		fmt.Println("Error getting token data", err)
+	}
+	if tokenData != nil {
+		userId := tokenData.UID
+
+		card_firestore := database_card_firestore.NewFirestoreCardDatabase()
+		userCards, err := card_firestore.GetUserCards(userId)
+		if err != nil {
+			fmt.Println("Error getting user cards", err)
+		}
+		ownedCards = userCards.Cards[collectionId]
+	}
+
 	cards := GetCollectionCards(collectionId)
-	json.NewEncoder(w).Encode(map[string][]Card{"cards": cards})
+	json.NewEncoder(w).Encode(map[string]interface{}{"cards": cards, "owned": ownedCards})
 }
 
 type Card struct {

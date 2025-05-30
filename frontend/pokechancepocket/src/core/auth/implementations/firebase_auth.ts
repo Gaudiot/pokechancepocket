@@ -73,6 +73,10 @@ export default class FirebaseAuth implements IAuth {
     async emailAndPasswordSignIn({email, password}: EmailAndPasswordSignInParams): Promise<AuthSignInResult> {
         try{
             await signInWithEmailAndPassword(this.auth, email, password)
+
+            const token = await this.auth.currentUser!.getIdToken()
+            localStorage.setItem('token', token)
+
             return {
                 success: true,
             }
@@ -142,6 +146,7 @@ export default class FirebaseAuth implements IAuth {
     }
 
     signOut(): Promise<void> {
+        localStorage.removeItem('token')
         return this.auth.signOut()
     }
 }
